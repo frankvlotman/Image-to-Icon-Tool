@@ -3,25 +3,10 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from PIL import Image
 
-# Define the path for the blank icon
-icon_path = 'C:\\Users\\Frank\\Desktop\\blank.ico'
-
-# Create a function to generate a blank icon
-def create_blank_ico(path):
-    size = (16, 16)
-    image = Image.new("RGBA", size, (255, 255, 255, 0))
-    image.save(path, format="ICO")
-
-# Create the blank ICO file
-create_blank_ico(icon_path)
-
 # Create the main window
 root = tk.Tk()
-root.title("Image-to-Icon Tool")
+root.title("PNG/JPEG/JFIF to ICO Converter")
 root.geometry("400x200")
-
-# Set custom icon
-root.iconbitmap(icon_path)
 
 # Store the selected file path
 selected_file_path = None
@@ -29,8 +14,8 @@ selected_file_path = None
 def select_file():
     global selected_file_path
     selected_file_path = filedialog.askopenfilename(
-        title="Select a PNG or JPEG File",
-        filetypes=[("PNG Files", "*.png"), ("JPEG Files", "*.jpeg;*.jpg")]
+        title="Select a PNG, JPEG, or JFIF File",
+        filetypes=[("PNG Files", "*.png"), ("JPEG Files", "*.jpeg;*.jpg"), ("JFIF Files", "*.jfif")]
     )
     if selected_file_path:
         file_label.config(text=f"Selected: {selected_file_path}")
@@ -41,7 +26,7 @@ def select_file():
 def save_ico_file():
     global selected_file_path
     if not selected_file_path:
-        messagebox.showerror("Error", "Please select a PNG or JPEG file first.")
+        messagebox.showerror("Error", "Please select a PNG, JPEG, or JFIF file first.")
         return
     
     # Ask where to save the ICO file
@@ -69,7 +54,7 @@ def save_ico_file():
 file_label = tk.Label(root, text="No file selected")
 file_label.pack(pady=10)
 
-select_button = tk.Button(root, text="Select PNG/JPEG", command=select_file)
+select_button = tk.Button(root, text="Select PNG/JPEG/JFIF", command=select_file)
 select_button.pack(pady=10)
 
 # Convert button
