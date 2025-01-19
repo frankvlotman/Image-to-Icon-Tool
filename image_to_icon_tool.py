@@ -1,12 +1,52 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from tkinter import ttk  # Added for custom button styling
 from PIL import Image
+
+# Define the path for the blank icon
+ICON_PATH = os.path.join(os.path.dirname(__file__), 'blank.ico')  # Saves in the same directory as the script
+
+# Create a blank (transparent) ICO file if it doesn't exist
+def create_blank_ico(path):
+    if not os.path.exists(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
+    if not os.path.exists(path):
+        size = (16, 16)  # Size of the icon
+        image = Image.new("RGBA", size, (255, 255, 255, 0))  # Transparent image
+        image.save(path, format="ICO")
+
+# Create the blank icon
+create_blank_ico(ICON_PATH)
 
 # Create the main window
 root = tk.Tk()
 root.title("PNG/JPEG/JFIF to ICO Converter")
-root.geometry("400x200")
+root.geometry("400x250")  # Increased height to accommodate additional UI elements
+
+# Set the window icon to the blank icon
+try:
+    root.iconbitmap(ICON_PATH)
+except Exception as e:
+    messagebox.showwarning("Icon Error", f"Failed to set window icon: {e}")
+
+# Initialize ttk.Style
+style = ttk.Style()
+style.theme_use("clam")  # Use 'clam' theme for better customization
+
+# Define custom style for buttons
+style.configure("Custom.TButton",
+                background="#d0e8f1",
+                foreground="black",
+                borderwidth=1,
+                focusthickness=3,
+                focuscolor='none',
+                padding=6)  # Added padding for better appearance
+
+# Define style map for hover (active) state
+style.map("Custom.TButton",
+          background=[('active', '#87CEFA')],
+          foreground=[('active', 'black')])
 
 # Store the selected file path
 selected_file_path = None
@@ -22,6 +62,7 @@ def select_file():
         convert_button.config(state=tk.NORMAL)
     else:
         file_label.config(text="No file selected")
+        convert_button.config(state=tk.DISABLED)  # Disable if no file is selected
 
 def save_ico_file():
     global selected_file_path
@@ -40,26 +81,36 @@ def save_ico_file():
         try:
             # Open the image
             img = Image.open(selected_file_path)
-
-            # Use the original size
-            ico_size = img.size
-
-            # Save the image as ICO with the original size
-            img.save(save_path, format='ICO')
-            messagebox.showinfo("Success", f"File saved as {save_path} with size {ico_size}")
+            
+            # Determine the sizes to include in the ICO
+            # Common sizes include 16x16, 32x32, 48x48, 64x64, 128x128, 256x256
+            sizes = [(16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
+            
+            # Resize the image to the required sizes
+            img_ico = img.convert("RGBA")
+            img_ico.save(save_path, format='ICO', sizes=sizes)
+            
+            messagebox.showinfo("Success", f"File saved as {save_path}")
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {e}")
 
 # UI Elements
-file_label = tk.Label(root, text="No file selected")
+file_label = tk.Label(root, text="No file selected", bg="#f0f0f0", fg="#333333", font=("Arial", 11))
 file_label.pack(pady=10)
 
-select_button = tk.Button(root, text="Select PNG/JPEG/JFIF", command=select_file)
-select_button.pack(pady=10)
+select_button = ttk.Button(root, text="Select PNG/JPEG/JFIF", command=select_file, style="Custom.TButton")
+select_button.pack(pady=5)
 
 # Convert button
-convert_button = tk.Button(root, text="Convert to ICO", command=save_ico_file, state=tk.DISABLED)
-convert_button.pack(pady=10)
+convert_button = ttk.Button(root, text="Convert to ICO", command=save_ico_file, style="Custom.TButton", state=tk.DISABLED)
+convert_button.pack(pady=5)
+
+# Add a note or instructions (optional)
+note_label = tk.Label(root, text="Select an image file to convert it to ICO format.", bg="#f0f0f0", fg="#555555", font=("Arial", 9))
+note_label.pack(pady=10)
+
+# Configure the main window's background to match widget styles
+root.configure(bg="#f0f0f0")
 
 # Run the GUI
 root.mainloop()
